@@ -8,10 +8,10 @@ import (
 )
 
 // ═══════════════════════════════════════════════════════════════════════════
-// State and Result
+// 状态与结果
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Status Agent status snapshot
+// Status Agent 状态快照
 type Status struct {
 	AgentID      string         `json:"agent_id"`
 	State        State          `json:"state"`
@@ -21,64 +21,64 @@ type Status struct {
 	Metadata     map[string]any `json:"metadata,omitempty"`
 }
 
-// Result conversation completion result
+// Result 对话完成结果
 type Result struct {
-	Text        string            `json:"text"`                   // Complete response text
-	Messages    []llm.Message `json:"messages,omitempty"`     // All messages in this conversation round
-	ToolsUsed   []string          `json:"tools_used,omitempty"`   // List of tools used
-	StepCount   int               `json:"step_count"`             // Execution steps (LLM call count)
-	TotalTokens int               `json:"total_tokens,omitempty"` // Token consumption
-	Metadata    map[string]any    `json:"metadata,omitempty"`
+	Text        string        `json:"text"`                   // 完整响应文本
+	Messages    []llm.Message `json:"messages,omitempty"`     // 本轮对话的所有消息
+	ToolsUsed   []string      `json:"tools_used,omitempty"`   // 使用过的工具列表
+	StepCount   int           `json:"step_count"`             // 执行步数（LLM 调用次数）
+	TotalTokens int           `json:"total_tokens,omitempty"` // Token 消耗
+	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
-// Sandbox sandbox interface
+// Sandbox 沙箱接口
 type Sandbox interface {
-	// WorkDir gets working directory
+	// WorkDir 获取工作目录
 	WorkDir() string
 
-	// Execute executes command in sandbox
+	// Execute 在沙箱中执行命令
 	Execute(ctx context.Context, cmd string, args ...string) (string, error)
 
-	// Dispose releases resources
+	// Dispose 释放资源
 	Dispose() error
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Run Options
+// 执行选项
 // ═══════════════════════════════════════════════════════════════════════════
 
-// RunOptions execution options
+// RunOptions 执行选项
 type RunOptions struct {
-	// Streaming whether to use streaming mode
-	// true: returns text delta events in real-time (default)
-	// false: returns complete result at once
+	// Streaming 是否使用流式模式
+	// true: 实时返回文本增量事件
+	// false: 一次性返回完整结果（默认）
 	Streaming bool
 }
 
-// DefaultRunOptions returns default execution options
-// Default uses non-streaming mode (more efficient)
+// DefaultRunOptions 返回默认执行选项
+// 默认使用非流式模式（效率更高）
 func DefaultRunOptions() *RunOptions {
 	return &RunOptions{
 		Streaming: false,
 	}
 }
 
-// RunOption execution option function
+// RunOption 执行选项函数
 type RunOption func(*RunOptions)
 
-// WithStreaming sets streaming mode
+// WithStreaming 设置流式模式
 //
-// Example:
+// 示例：
 //
-//	// Non-streaming (default) - returns at once
+//	// 非流式（默认）- 一次性返回
 //	for event := range agent.Run(ctx, "1+1=?") {
-//	    // Only receive tool events + 1 complete Text + Done
+//	    // 只收到工具事件 + 1 个完整 Text + Done
 //	}
 //
-//	// Streaming - real-time output
-//	for event := range agent.Run(ctx, "Write an article", WithStreaming(true)) {
+//	// 流式 - 实时输出
+//	for event := range agent.Run(ctx, "写一篇文章", WithStreaming(true)) {
 //	    if event.Type == llm.EventTypeText {
-//	        fmt.Print(event.Text)  // Character by character output
+//	        fmt.Print(event.Text)  // 逐字输出
 //	    }
 //	}
 func WithStreaming(enabled bool) RunOption {
@@ -87,7 +87,7 @@ func WithStreaming(enabled bool) RunOption {
 	}
 }
 
-// ApplyRunOptions applies options
+// ApplyRunOptions 应用选项
 func ApplyRunOptions(opts ...RunOption) *RunOptions {
 	options := DefaultRunOptions()
 	for _, opt := range opts {
@@ -97,7 +97,7 @@ func ApplyRunOptions(opts ...RunOption) *RunOptions {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Event System
+// 事件系统
 // ═══════════════════════════════════════════════════════════════════════════
 
 // AgentEvent Agent 执行事件
@@ -106,30 +106,30 @@ func ApplyRunOptions(opts ...RunOption) *RunOptions {
 //   - llm.Event: LLM 原生流式增量事件（TextDelta, ToolCallDelta）
 //   - AgentEvent: Agent 聚合后的执行事件（完整 Text, ToolCall, Result）
 //
-// In streaming mode:
-//   - Multiple llm.EventTypeText events, each containing text delta
-//   - Tool call/result events
-//   - Final llm.EventTypeDone event
+// 流式模式：
+//   - 多个 llm.EventTypeText 事件，每个包含文本增量
+//   - 工具调用/结果事件
+//   - 最终 llm.EventTypeDone 事件
 //
-// In non-streaming mode:
-//   - Tool call/result events (if any)
-//   - One llm.EventTypeText event with complete text
-//   - Final llm.EventTypeDone event
+// 非流式模式：
+//   - 工具调用/结果事件（如有）
+//   - 一个 llm.EventTypeText 事件包含完整文本
+//   - 最终 llm.EventTypeDone 事件
 //
-// Example:
+// 示例：
 //
 //	for event := range agent.Run(ctx, "Hello") {
 //	    switch event.Type {
 //	    case llm.EventTypeText:
 //	        fmt.Print(event.Text)
 //	    case llm.EventTypeToolCall:
-//	        fmt.Printf("[Call: %s]\n", event.ToolCall.Name)
+//	        fmt.Printf("[调用: %s]\n", event.ToolCall.Name)
 //	    case llm.EventTypeToolResult:
-//	        fmt.Printf("[Result: %s]\n", event.ToolResult.Name)
+//	        fmt.Printf("[结果: %s]\n", event.ToolResult.Name)
 //	    case llm.EventTypeDone:
-//	        fmt.Printf("\nDone! Tools: %v\n", event.Result.ToolsUsed)
+//	        fmt.Printf("\n完成! 工具: %v\n", event.Result.ToolsUsed)
 //	    case llm.EventTypeError:
-//	        fmt.Printf("Error: %v\n", event.Error)
+//	        fmt.Printf("错误: %v\n", event.Error)
 //	    }
 //	}
 type AgentEvent struct {
@@ -155,68 +155,68 @@ type AgentEvent struct {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Agent Interface
+// Agent 接口
 // ═══════════════════════════════════════════════════════════════════════════
 
-// AgentInterface defines Agent core behavior
+// AgentInterface 定义 Agent 核心行为
 //
-// Design notes:
-//   - Run() is the only execution entry point, supports streaming/non-streaming modes
-//   - Chat() is convenience method, internally uses non-streaming mode, more efficient
-//   - Unified event-driven model, caller has full control over execution
+// 设计说明：
+//   - Run() 是唯一执行入口，支持流式/非流式模式
+//   - Chat() 是便捷方法，内部使用非流式模式，效率更高
+//   - 统一的事件驱动模型，调用者拥有完全控制权
 type AgentInterface interface {
 	// ─────────────────────────────────────────────────────────────────────
-	// Identity
+	// 身份信息
 	// ─────────────────────────────────────────────────────────────────────
 
-	// ID returns Agent ID
+	// ID 返回 Agent ID
 	ID() string
 
-	// Name returns Agent name
+	// Name 返回 Agent 名称
 	Name() string
 
-	// ParentID returns parent Agent ID (for multi-Agent collaboration)
+	// ParentID 返回父 Agent ID（多 Agent 协作场景）
 	ParentID() string
 
 	// ─────────────────────────────────────────────────────────────────────
-	// Core Execution
+	// 核心执行
 	// ─────────────────────────────────────────────────────────────────────
 
-	// Run executes conversation, returns event stream
+	// Run 执行对话，返回事件流
 	//
-	// This is Agent's core method, supports two execution modes:
+	// 这是 Agent 的核心方法，支持两种执行模式：
 	//
-	// Non-streaming mode (default):
-	//   - Returns complete result at once, suitable for simple Q&A
-	//   - Low network overhead, low latency
+	// 非流式模式（默认）：
+	//   - 一次性返回完整结果，适合简单问答
+	//   - 网络开销低，延迟低
 	//
-	// Streaming mode:
-	//   - Returns text delta in real-time, suitable for long text generation
-	//   - Better user experience, can see character by character output
+	// 流式模式：
+	//   - 实时返回文本增量，适合长文本生成
+	//   - 用户体验更好，可以看到逐字输出
 	//
-	// Example:
+	// 示例：
 	//
-	//	// Non-streaming (default)
+	//	// 非流式（默认）
 	//	for event := range agent.Run(ctx, "1+1=?") {
 	//	    if event.Type == llm.EventTypeDone {
 	//	        fmt.Println(event.Result.Text)
 	//	    }
 	//	}
 	//
-	//	// Streaming
-	//	for event := range agent.Run(ctx, "Write an article", agent.WithStreaming(true)) {
+	//	// 流式
+	//	for event := range agent.Run(ctx, "写一篇文章", agent.WithStreaming(true)) {
 	//	    if event.Type == llm.EventTypeText {
 	//	        fmt.Print(event.Text)
 	//	    }
 	//	}
 	Run(ctx context.Context, text string, opts ...RunOption) <-chan *AgentEvent
 
-	// Chat synchronous conversation (blocks until completion)
+	// Chat 同步对话（阻塞直到完成）
 	//
-	// This is convenience method, internally uses non-streaming mode, more efficient.
-	// Suitable for simple Q&A scenarios, no need for real-time output.
+	// 这是便捷方法，内部使用非流式模式，效率更高。
+	// 适合简单问答场景，无需实时输出。
 	//
-	// Example:
+	// 示例：
 	//
 	//	result, err := agent.Chat(ctx, "1+1=?")
 	//	if err != nil {
@@ -226,59 +226,59 @@ type AgentInterface interface {
 	Chat(ctx context.Context, text string) (*Result, error)
 
 	// ─────────────────────────────────────────────────────────────────────
-	// Status Query
+	// 状态查询
 	// ─────────────────────────────────────────────────────────────────────
 
-	// Status gets status snapshot
+	// Status 获取状态快照
 	Status() *Status
 
-	// Messages gets message history
+	// Messages 获取消息历史
 	Messages() []llm.Message
 
 	// ─────────────────────────────────────────────────────────────────────
-	// Lifecycle
+	// 生命周期
 	// ─────────────────────────────────────────────────────────────────────
 
-	// Close closes Agent, releases resources
+	// Close 关闭 Agent，释放资源
 	Close() error
 }
 
-// AgentFactory Agent factory interface
-// Used by tools to create Agents (e.g., agent_create tool)
+// AgentFactory Agent 工厂接口
+// 供工具创建 Agent 使用（如 agent_create 工具）
 type AgentFactory interface {
-	// CreateAgent creates Agent
+	// CreateAgent 创建 Agent
 	CreateAgent(ctx context.Context, config *Config) (AgentInterface, error)
 }
 
-// Runtime runtime interface (Agent collaboration layer, optional)
+// Runtime 运行时接口（Agent 协作层，可选）
 //
-// Agent is independent first-class citizen, can work without Runtime.
-// Runtime is optional, used for multi-Agent collaboration scenarios:
-//   - Agent member management
-//   - Agent lookup service
-//   - Shared resource access
+// Agent 是独立的一等公民，可以脱离 Runtime 独立工作。
+// Runtime 是可选的，用于多 Agent 协作场景：
+//   - Agent 成员管理
+//   - Agent 查找服务
+//   - 共享资源访问
 type Runtime interface {
-	// AddAgent adds Agent to collaboration group (Agent actively joins)
+	// AddAgent 添加 Agent 到协作组（Agent 主动加入）
 	AddAgent(ag AgentInterface) error
 
-	// RemoveAgent removes Agent from collaboration group
+	// RemoveAgent 从协作组移除 Agent
 	RemoveAgent(agentID string)
 
-	// CloseAgent closes and removes Agent
+	// CloseAgent 关闭并移除 Agent
 	CloseAgent(agentID string) error
 
-	// GetAgent gets Agent (lookup member)
+	// GetAgent 获取 Agent（查找成员）
 	GetAgent(agentID string) (AgentInterface, bool)
 
-	// ListAgents lists all Agents (member list)
+	// ListAgents 列出所有 Agent（成员列表）
 	ListAgents() []AgentInterface
 
-	// ListChildAgents lists child Agents (direct subordinates)
+	// ListChildAgents 列出子 Agent（直接下属）
 	ListChildAgents(parentID string) []AgentInterface
 
-	// ListDescendantAgents lists all descendant Agents (entire team)
+	// ListDescendantAgents 列出所有后代 Agent（整个团队）
 	ListDescendantAgents(parentID string) []AgentInterface
 
-	// GetAgentLineage gets Agent lineage (reporting chain)
+	// GetAgentLineage 获取 Agent 血统链（上报链路）
 	GetAgentLineage(agentID string) []string
 }
