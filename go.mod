@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/lwmacct/251207-go-pkg-config v0.0.14
+	github.com/lwmacct/251207-go-pkg-config v0.0.15
 	github.com/lwmacct/251215-go-pkg-llm v0.0.5
 	github.com/lwmacct/251215-go-pkg-mcp v0.0.1
 	github.com/lwmacct/251215-go-pkg-tool v0.0.1
@@ -32,8 +32,8 @@ require (
 	github.com/urfave/cli/v3 v3.6.1 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/oauth2 v0.30.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
