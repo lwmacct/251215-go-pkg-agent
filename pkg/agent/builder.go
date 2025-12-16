@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/lwmacct/251207-go-pkg-config/pkg/config"
+	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
 	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm"
 	"github.com/lwmacct/251215-go-pkg-mcp/pkg/mcp"
 	"github.com/lwmacct/251215-go-pkg-tool/pkg/tool"
@@ -328,7 +328,7 @@ func (b *Builder) FromEnv(prefix string) *Builder {
 //	ag, err := agent.New().FromFile("config.yaml").Build()
 func (b *Builder) FromFile(path string) *Builder {
 	cfg, err := LoadConfig(
-		config.WithConfigPaths(path),
+		mcfg.WithConfigPaths(path),
 	)
 	if err != nil {
 		b.errs = append(b.errs, fmt.Errorf("load config file: %w", err))

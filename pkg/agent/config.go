@@ -3,7 +3,7 @@ package agent
 import (
 	"errors"
 
-	"github.com/lwmacct/251207-go-pkg-config/pkg/config"
+	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
 	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm"
 )
 
@@ -77,8 +77,8 @@ func DefaultConfig() *Config {
 //	        "OPENROUTER_API_KEY": "llm.api-key",
 //	    }),
 //	)
-func LoadConfig(opts ...config.Option) (*Config, error) {
-	return config.Load(*DefaultConfig(), opts...)
+func LoadConfig(opts ...mcfg.Option) (*Config, error) {
+	return mcfg.Load(*DefaultConfig(), opts...)
 }
 
 // DefaultConfigPaths 返回默认配置文件搜索路径
@@ -90,7 +90,7 @@ func LoadConfig(opts ...config.Option) (*Config, error) {
 //  4. config.yaml - 当前目录通用配置
 //  5. config/config.yaml - 子目录配置
 func DefaultConfigPaths() []string {
-	return config.DefaultPaths("agent")
+	return mcfg.DefaultPaths("agent")
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -101,7 +101,7 @@ func DefaultConfigPaths() []string {
 //
 // Uses koanf tags and comment tags to generate formatted YAML with comments.
 func ConfigToYAML(cfg *Config) []byte {
-	return config.GenerateExampleYAML(*cfg)
+	return mcfg.GenerateExampleYAML(*cfg)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

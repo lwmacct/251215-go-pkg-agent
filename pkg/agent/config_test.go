@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/lwmacct/251207-go-pkg-config/pkg/config"
+	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -88,7 +88,7 @@ func TestLoadConfig(t *testing.T) {
 		}()
 
 		cfg, err := LoadConfig(
-			config.WithEnvPrefix("TEST_AGENT_"),
+			mcfg.WithEnvPrefix("TEST_AGENT_"),
 		)
 		require.NoError(t, err)
 
@@ -101,7 +101,7 @@ func TestLoadConfig(t *testing.T) {
 		defer func() { _ = os.Unsetenv("CUSTOM_ENV_KEY") }()
 
 		cfg, err := LoadConfig(
-			config.WithEnvBindings(map[string]string{
+			mcfg.WithEnvBindings(map[string]string{
 				"CUSTOM_ENV_KEY": "llm.api-key",
 			}),
 		)
@@ -112,7 +112,7 @@ func TestLoadConfig(t *testing.T) {
 
 	t.Run("with_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			config.WithConfigPaths("pkg/agent/testdata/agent.yaml"),
+			mcfg.WithConfigPaths("pkg/agent/testdata/agent.yaml"),
 		)
 		require.NoError(t, err)
 
@@ -143,7 +143,7 @@ func TestConfigToYAML(t *testing.T) {
 // ConfigTestHelper (Test-Driven Config Management)
 // ═══════════════════════════════════════════════════════════════════════════
 
-var configHelper = config.ConfigTestHelper[Config]{
+var configHelper = mcfg.ConfigTestHelper[Config]{
 	ExamplePath: "testdata/config-example.yaml",
 	ConfigPath:  "testdata/agent.yaml",
 }
@@ -171,7 +171,7 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 		}()
 
 		cfg, err := LoadConfig(
-			config.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
+			mcfg.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
 		)
 		require.NoError(t, err)
 
@@ -187,7 +187,7 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 		defer func() { _ = os.Unsetenv("TEST_API_KEY") }()
 
 		cfg, err := LoadConfig(
-			config.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
+			mcfg.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
 		)
 		require.NoError(t, err)
 
@@ -200,7 +200,7 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 func TestLoadConfig_JSONSupport(t *testing.T) {
 	t.Run("json_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			config.WithConfigPaths("pkg/agent/testdata/agent.json"),
+			mcfg.WithConfigPaths("pkg/agent/testdata/agent.json"),
 		)
 		require.NoError(t, err)
 
