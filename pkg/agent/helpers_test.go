@@ -85,10 +85,10 @@ func TestCloneConfig(t *testing.T) {
 
 	t.Run("deep_copy_basic_fields", func(t *testing.T) {
 		src := &Config{
-			ID:       "src-id",
-			Name:     "Source",
-			ParentID: "parent-123",
-			Prompt:   "System prompt",
+			ID:           "src-id",
+			Name:         "Source",
+			ParentID:     "parent-123",
+			SystemPrompt: "System prompt",
 			LLM: llm.Config{
 				Model:   "gpt-4",
 				APIKey:  "sk-test",
@@ -103,7 +103,7 @@ func TestCloneConfig(t *testing.T) {
 		assert.Equal(t, src.ID, dst.ID)
 		assert.Equal(t, src.Name, dst.Name)
 		assert.Equal(t, src.ParentID, dst.ParentID)
-		assert.Equal(t, src.Prompt, dst.Prompt)
+		assert.Equal(t, src.SystemPrompt, dst.SystemPrompt)
 		assert.Equal(t, src.LLM.Model, dst.LLM.Model)
 		assert.Equal(t, src.LLM.APIKey, dst.LLM.APIKey)
 		assert.Equal(t, src.LLM.BaseURL, dst.LLM.BaseURL)
@@ -180,7 +180,7 @@ func TestCloneConfig(t *testing.T) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 func BenchmarkGenerateAgentID(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = generateAgentID()
 	}
 }
@@ -198,7 +198,7 @@ func BenchmarkCloneConfig(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = cloneConfig(src)
 	}
 }
@@ -207,7 +207,7 @@ func BenchmarkTruncateString(b *testing.B) {
 	longString := "This is a very long string that needs to be truncated to fit within the specified maximum length"
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = truncateString(longString, 20)
 	}
 }

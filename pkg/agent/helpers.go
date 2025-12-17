@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -27,7 +28,7 @@ func (a *Agent) appendMessage(msg llm.Message) {
 // buildProviderOptions 构建 Provider 选项
 func (a *Agent) buildProviderOptions() *llm.Options {
 	opts := &llm.Options{
-		System:      a.config.Prompt,
+		System:      a.config.SystemPrompt,
 		MaxTokens:   a.config.MaxTokens,
 		Temperature: 0.7,
 	}
@@ -111,26 +112,22 @@ func cloneConfig(src *Config) *Config {
 	tools := make([]string, len(src.Tools))
 	copy(tools, src.Tools)
 
-	// 深拷贝 map (值浅拷贝)
+	// 深拷贝 map
 	metadata := make(map[string]any, len(src.Metadata))
-	for k, v := range src.Metadata {
-		metadata[k] = v
-	}
+	maps.Copy(metadata, src.Metadata)
 
 	// 深拷贝 LLM.Extra map
 	var llmExtra map[string]any
 	if src.LLM.Extra != nil {
 		llmExtra = make(map[string]any, len(src.LLM.Extra))
-		for k, v := range src.LLM.Extra {
-			llmExtra[k] = v
-		}
+		maps.Copy(llmExtra, src.LLM.Extra)
 	}
 
 	return &Config{
-		ID:        src.ID,
-		Name:      src.Name,
-		ParentID:  src.ParentID,
-		Prompt:    src.Prompt,
+		ID:           src.ID,
+		Name:         src.Name,
+		ParentID:     src.ParentID,
+		SystemPrompt: src.SystemPrompt,
 		LLM: llm.Config{
 			Type:       src.LLM.Type,
 			APIKey:     src.LLM.APIKey,

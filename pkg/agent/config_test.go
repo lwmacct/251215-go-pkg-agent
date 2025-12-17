@@ -20,7 +20,7 @@ func TestDefaultConfig(t *testing.T) {
 	assert.Equal(t, "anthropic/claude-haiku-4.5", cfg.LLM.Model)
 	assert.Equal(t, "https://openrouter.ai/api/v1", cfg.LLM.BaseURL)
 	assert.Equal(t, 4096, cfg.MaxTokens)
-	assert.Equal(t, "You are a helpful AI assistant.", cfg.Prompt)
+	assert.Equal(t, "You are a helpful AI assistant.", cfg.SystemPrompt)
 	assert.Equal(t, ".", cfg.WorkDir)
 }
 
@@ -76,15 +76,15 @@ func TestLoadConfig(t *testing.T) {
 
 		assert.Equal(t, DefaultConfig().LLM.Model, cfg.LLM.Model)
 		assert.Equal(t, DefaultConfig().MaxTokens, cfg.MaxTokens)
-		assert.Equal(t, DefaultConfig().Prompt, cfg.Prompt)
+		assert.Equal(t, DefaultConfig().SystemPrompt, cfg.SystemPrompt)
 	})
 
 	t.Run("with_env_prefix", func(t *testing.T) {
 		_ = os.Setenv("TEST_AGENT_MAX_TOKENS", "8192")
-		_ = os.Setenv("TEST_AGENT_PROMPT", "Custom prompt")
+		_ = os.Setenv("TEST_AGENT_SYSTEM_PROMPT", "Custom prompt")
 		defer func() {
 			_ = os.Unsetenv("TEST_AGENT_MAX_TOKENS")
-			_ = os.Unsetenv("TEST_AGENT_PROMPT")
+			_ = os.Unsetenv("TEST_AGENT_SYSTEM_PROMPT")
 		}()
 
 		cfg, err := LoadConfig(
@@ -93,7 +93,7 @@ func TestLoadConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, 8192, cfg.MaxTokens)
-		assert.Equal(t, "Custom prompt", cfg.Prompt)
+		assert.Equal(t, "Custom prompt", cfg.SystemPrompt)
 	})
 
 	t.Run("with_env_bindings", func(t *testing.T) {
@@ -138,15 +138,6 @@ func TestConfigToYAML(t *testing.T) {
 	assert.NotEmpty(t, yaml)
 	assert.Contains(t, string(yaml), "prompt:")
 	assert.Contains(t, string(yaml), "max-tokens:")
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ConfigTestHelper (Test-Driven Config Management)
-// ═══════════════════════════════════════════════════════════════════════════
-
-var configHelper = mcfg.ConfigTestHelper[Config]{
-	ExamplePath: "testdata/config-example.yaml",
-	ConfigPath:  "testdata/agent.yaml",
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -201,7 +192,7 @@ func TestLoadConfig_JSONSupport(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "json-assistant", cfg.Name)
-		assert.Equal(t, "你是一个使用 JSON 配置的助手", cfg.Prompt)
+		assert.Equal(t, "你是一个使用 JSON 配置的助手", cfg.SystemPrompt)
 		assert.Equal(t, "anthropic/claude-haiku-4.5", cfg.LLM.Model)
 		assert.Equal(t, 8192, cfg.MaxTokens)
 	})

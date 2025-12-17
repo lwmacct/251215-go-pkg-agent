@@ -184,7 +184,7 @@ func TestBuilder_ConcurrentBuild(t *testing.T) {
 		errors := make([]error, goroutines)
 
 		// 并发调用 Build()
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			go func(idx int) {
 				defer wg.Done()
 				ag, err := builder.Build()
@@ -231,7 +231,7 @@ func TestBuilder_ConcurrentBuild(t *testing.T) {
 		ctx := context.Background()
 
 		// 并发调用 Chat()
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			go func(idx int) {
 				defer wg.Done()
 				_, err := builder.Chat(ctx, "Hello")
@@ -266,7 +266,7 @@ func TestBuilder_ConcurrentBuild(t *testing.T) {
 		ctx := context.Background()
 
 		// 并发调用 Run()
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			go func(idx int) {
 				defer wg.Done()
 				eventCh := builder.Run(ctx, "Hello")
@@ -301,7 +301,7 @@ func TestBuilder_RaceCondition(t *testing.T) {
 		wg.Add(goroutines)
 
 		// 高并发调用，触发 race detector
-		for i := 0; i < goroutines; i++ {
+		for range goroutines {
 			go func() {
 				defer wg.Done()
 				_, _ = builder.Build()
@@ -324,7 +324,7 @@ func BenchmarkBuilder_Build(b *testing.B) {
 		Model("gpt-4o-mini")
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = builder.Build()
 	}
 }
@@ -343,7 +343,7 @@ func BenchmarkBuilder_LazyBuild(b *testing.B) {
 
 	b.ResetTimer()
 	// 测试快速路径（已构建，直接返回）
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = builder.Build()
 	}
 }
@@ -476,8 +476,8 @@ func TestAgentClone_From(t *testing.T) {
 		if clonedCfg.LLM.Model != srcCfg.LLM.Model {
 			t.Errorf("Model mismatch: got %s, want %s", clonedCfg.LLM.Model, srcCfg.LLM.Model)
 		}
-		if clonedCfg.Prompt != srcCfg.Prompt {
-			t.Errorf("Prompt mismatch: got %s, want %s", clonedCfg.Prompt, srcCfg.Prompt)
+		if clonedCfg.SystemPrompt != srcCfg.SystemPrompt {
+			t.Errorf("Prompt mismatch: got %s, want %s", clonedCfg.SystemPrompt, srcCfg.SystemPrompt)
 		}
 		if clonedCfg.MaxTokens != srcCfg.MaxTokens {
 			t.Errorf("MaxTokens mismatch: got %d, want %d", clonedCfg.MaxTokens, srcCfg.MaxTokens)
@@ -578,8 +578,8 @@ func TestAgentClone_CloneAgent(t *testing.T) {
 		if clonedCfg.Name != "Modified" {
 			t.Errorf("Name not modified: got %s, want Modified", clonedCfg.Name)
 		}
-		if clonedCfg.Prompt != "New prompt" {
-			t.Errorf("Prompt not modified: got %s, want New prompt", clonedCfg.Prompt)
+		if clonedCfg.SystemPrompt != "New prompt" {
+			t.Errorf("Prompt not modified: got %s, want New prompt", clonedCfg.SystemPrompt)
 		}
 	})
 }
@@ -681,7 +681,7 @@ func TestAgentClone_Concurrent(t *testing.T) {
 		clones := make([]*Agent, goroutines)
 
 		// 并发克隆
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			go func(idx int) {
 				defer wg.Done()
 				cloned, err := From(src).
@@ -702,7 +702,7 @@ func TestAgentClone_Concurrent(t *testing.T) {
 		}
 
 		// 验证所有克隆都是不同的实例
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			for j := i + 1; j < goroutines; j++ {
 				if clones[i] == clones[j] {
 					t.Errorf("Clones %d and %d are the same instance", i, j)
@@ -731,7 +731,7 @@ func TestAgentClone_Concurrent(t *testing.T) {
 		errors := make(chan error, goroutines)
 
 		// 并发使用 CloneAgent
-		for i := 0; i < goroutines; i++ {
+		for i := range goroutines {
 			go func(idx int) {
 				defer wg.Done()
 				_, err := CloneAgent(src,

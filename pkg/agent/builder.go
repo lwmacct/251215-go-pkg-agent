@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"sync"
 
@@ -159,7 +160,7 @@ func (b *Builder) MaxTokens(n int) *Builder {
 
 // System 设置系统提示词
 func (b *Builder) System(prompt string) *Builder {
-	b.inner.config.Prompt = prompt
+	b.inner.config.SystemPrompt = prompt
 	return b
 }
 
@@ -170,7 +171,7 @@ func (b *Builder) SystemFromFile(path string) *Builder {
 		b.errs = append(b.errs, fmt.Errorf("read system prompt file: %w", err))
 		return b
 	}
-	b.inner.config.Prompt = string(data)
+	b.inner.config.SystemPrompt = string(data)
 	return b
 }
 
@@ -389,16 +390,14 @@ func (b *Builder) applyConfig(cfg *Config) {
 		if b.inner.config.LLM.Extra == nil {
 			b.inner.config.LLM.Extra = make(map[string]any)
 		}
-		for k, v := range cfg.LLM.Extra {
-			b.inner.config.LLM.Extra[k] = v
-		}
+		maps.Copy(b.inner.config.LLM.Extra, cfg.LLM.Extra)
 	}
 	// Agent 层配置
 	if cfg.MaxTokens > 0 {
 		b.inner.config.MaxTokens = cfg.MaxTokens
 	}
-	if cfg.Prompt != "" {
-		b.inner.config.Prompt = cfg.Prompt
+	if cfg.SystemPrompt != "" {
+		b.inner.config.SystemPrompt = cfg.SystemPrompt
 	}
 	if cfg.WorkDir != "" {
 		b.inner.config.WorkDir = cfg.WorkDir
