@@ -100,7 +100,7 @@ func Example_builderFromFile() {
 
 	// 从 YAML 配置文件加载（支持 JSON/YAML 格式，支持模板语法）
 	ag, err := agent.New().
-		FromFile("pkg/agent/testdata/agent.yaml").
+		FromFile("testdata/agent.yaml").
 		Provider(provider).
 		Build()
 	if err != nil {

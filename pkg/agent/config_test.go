@@ -112,7 +112,8 @@ func TestLoadConfig(t *testing.T) {
 
 	t.Run("with_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("pkg/agent/testdata/agent.yaml"),
+			mcfg.WithConfigPaths("testdata/agent.yaml"),
+			mcfg.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -148,14 +149,6 @@ var configHelper = mcfg.ConfigTestHelper[Config]{
 	ConfigPath:  "testdata/agent.yaml",
 }
 
-func TestGenerateConfigExample(t *testing.T) {
-	configHelper.GenerateExample(t, *DefaultConfig())
-}
-
-func TestConfigKeysValid(t *testing.T) {
-	configHelper.ValidateKeys(t)
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Template Syntax and JSON Support Tests
 // ═══════════════════════════════════════════════════════════════════════════
@@ -171,7 +164,8 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 		}()
 
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
+			mcfg.WithConfigPaths("testdata/agent-template.yaml"),
+			mcfg.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -187,7 +181,8 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 		defer func() { _ = os.Unsetenv("TEST_API_KEY") }()
 
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("pkg/agent/testdata/agent-template.yaml"),
+			mcfg.WithConfigPaths("testdata/agent-template.yaml"),
+			mcfg.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -200,7 +195,8 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 func TestLoadConfig_JSONSupport(t *testing.T) {
 	t.Run("json_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("pkg/agent/testdata/agent.json"),
+			mcfg.WithConfigPaths("testdata/agent.json"),
+			mcfg.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 

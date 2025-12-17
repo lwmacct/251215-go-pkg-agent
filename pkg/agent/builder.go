@@ -295,23 +295,26 @@ func (b *Builder) FromConfig(cfg *Config) *Builder {
 }
 
 // FromEnv 从环境变量加载配置
-// prefix 是环境变量前缀，如 "AGENT" 会读取 AGENT_MODEL, AGENT_API_KEY 等
+//
+// prefix 是环境变量前缀，自动读取所有配置字段：
+//   - AGENT_NAME → name
+//   - AGENT_PROMPT → prompt
+//   - AGENT_LLM_MODEL → llm.model
+//   - AGENT_LLM_API_KEY → llm.api-key
+//   - AGENT_LLM_BASE_URL → llm.base-url
+//   - AGENT_MAX_TOKENS → max-tokens
+//   - AGENT_WORK_DIR → work-dir
+//   - ... (所有嵌套字段自动支持)
 func (b *Builder) FromEnv(prefix string) *Builder {
-	if model := os.Getenv(prefix + "_MODEL"); model != "" {
-		b.inner.config.LLM.Model = model
+	cfg, err := LoadConfig(
+		mcfg.WithEnvPrefix(prefix+"_"),
+		mcfg.WithBaseDir(""),
+	)
+	if err != nil {
+		b.errs = append(b.errs, fmt.Errorf("load from env: %w", err))
+		return b
 	}
-	if apiKey := os.Getenv(prefix + "_API_KEY"); apiKey != "" {
-		b.inner.config.LLM.APIKey = apiKey
-	}
-	if baseURL := os.Getenv(prefix + "_BASE_URL"); baseURL != "" {
-		b.inner.config.LLM.BaseURL = baseURL
-	}
-	if name := os.Getenv(prefix + "_NAME"); name != "" {
-		b.inner.config.Name = name
-	}
-	if workDir := os.Getenv(prefix + "_WORK_DIR"); workDir != "" {
-		b.inner.config.WorkDir = workDir
-	}
+	b.applyConfig(cfg)
 	return b
 }
 
@@ -322,6 +325,7 @@ func (b *Builder) FromEnv(prefix string) *Builder {
 // FromFile 从配置文件加载配置
 //
 // 使用 koanf 加载 YAML 配置文件。
+// 支持相对路径（基于当前工作目录）和绝对路径。
 //
 // 示例：
 //
@@ -329,6 +333,7 @@ func (b *Builder) FromEnv(prefix string) *Builder {
 func (b *Builder) FromFile(path string) *Builder {
 	cfg, err := LoadConfig(
 		mcfg.WithConfigPaths(path),
+		mcfg.WithBaseDir(""), // 使用当前工作目录作为基准
 	)
 	if err != nil {
 		b.errs = append(b.errs, fmt.Errorf("load config file: %w", err))
