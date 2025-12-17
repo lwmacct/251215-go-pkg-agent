@@ -5,7 +5,7 @@ go 1.25.4
 require (
 	github.com/google/uuid v1.6.0
 	github.com/lwmacct/251207-go-pkg-mcfg v0.1.7
-	github.com/lwmacct/251215-go-pkg-llm v0.0.7
+	github.com/lwmacct/251215-go-pkg-llm v0.0.9
 	github.com/lwmacct/251215-go-pkg-mcp v0.0.1
 	github.com/lwmacct/251215-go-pkg-tool v0.0.1
 	github.com/stretchr/testify v1.11.1

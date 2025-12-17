@@ -37,7 +37,7 @@ type Config struct {
 // DefaultConfig returns default configuration
 func DefaultConfig() *Config {
 	return &Config{
-		LLM:          llm.DefaultConfig(),
+		LLM:          *llm.DefaultConfig(),
 		MaxTokens:    4096,
 		SystemPrompt: "You are a helpful AI assistant.",
 		WorkDir:      ".",
