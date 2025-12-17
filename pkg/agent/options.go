@@ -110,7 +110,7 @@ func WithMaxTokens(maxTokens int) Option {
 // WithPrompt 设置系统提示词
 func WithPrompt(prompt string) Option {
 	return func(b *builder) {
-		b.config.Prompt = prompt
+		b.config.SystemPrompt = prompt
 	}
 }
 

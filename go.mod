@@ -5,10 +5,11 @@ go 1.25.4
 require (
 	github.com/google/uuid v1.6.0
 	github.com/lwmacct/251207-go-pkg-mcfg v0.1.7
-	github.com/lwmacct/251215-go-pkg-llm v0.0.5
+	github.com/lwmacct/251215-go-pkg-llm v0.0.7
 	github.com/lwmacct/251215-go-pkg-mcp v0.0.1
 	github.com/lwmacct/251215-go-pkg-tool v0.0.1
 	github.com/stretchr/testify v1.11.1
+	github.com/urfave/cli/v3 v3.6.1
 )
 
 require (
@@ -29,7 +30,6 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modelcontextprotocol/go-sdk v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/urfave/cli/v3 v3.6.1 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/net v0.48.0 // indirect

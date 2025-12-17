@@ -15,8 +15,8 @@ type Config struct {
 	Name     string `koanf:"name" desc:"Agent 名称"`
 	ParentID string `koanf:"parent-id"`
 
-	// System Prompt
-	Prompt string `koanf:"prompt" desc:"系统提示词"`
+	// System SystemPrompt
+	SystemPrompt string `koanf:"system-prompt" desc:"系统提示词"`
 
 	// LLM Configuration (嵌套结构，统一管理 LLM 相关配置)
 	LLM llm.Config `koanf:"llm" desc:"LLM 配置"`
@@ -37,13 +37,10 @@ type Config struct {
 // DefaultConfig returns default configuration
 func DefaultConfig() *Config {
 	return &Config{
-		LLM: llm.Config{
-			Model:   "anthropic/claude-haiku-4.5",
-			BaseURL: "https://openrouter.ai/api/v1",
-		},
-		MaxTokens: 4096,
-		Prompt:    "You are a helpful AI assistant.",
-		WorkDir:   ".",
+		LLM:          llm.DefaultConfig(),
+		MaxTokens:    4096,
+		SystemPrompt: "You are a helpful AI assistant.",
+		WorkDir:      ".",
 	}
 }
 
