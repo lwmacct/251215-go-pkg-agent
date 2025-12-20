@@ -73,8 +73,9 @@ func (a *Agent) injectToolManual(opts *llm.Options) {
 		return
 	}
 
-	var lines []string
-	for _, t := range a.toolRegistry.List() {
+	tools := a.toolRegistry.List()
+	lines := make([]string, 0, len(tools))
+	for _, t := range tools {
 		lines = append(lines, fmt.Sprintf("- `%s`: %s", t.Name(), t.Description()))
 	}
 

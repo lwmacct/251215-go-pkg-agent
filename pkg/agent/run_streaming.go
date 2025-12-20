@@ -146,12 +146,14 @@ func (a *Agent) callProviderStreaming(ctx context.Context, eventCh chan<- *Agent
 					entry.args.WriteString(tc.ArgumentsDelta)
 				}
 			}
+		case llm.EventTypeToolResult, llm.EventTypeThinking, llm.EventTypeDone, llm.EventTypeError:
+			// 这些事件类型在流式块处理中不出现，由上层处理
 		}
 	}
 
 	// 将累积的工具调用转换为 ContentBlocks
 	toolCallBlocks := make([]*llm.ToolCall, 0, len(toolCallsMap))
-	for i := 0; i < len(toolCallsMap); i++ {
+	for i := range len(toolCallsMap) {
 		if entry, exists := toolCallsMap[i]; exists {
 			// 解析 JSON 参数
 			var input map[string]any
@@ -173,7 +175,7 @@ func (a *Agent) callProviderStreaming(ctx context.Context, eventCh chan<- *Agent
 	}
 
 	// 构建响应消息 - 将工具调用添加到 ContentBlocks
-	var contentBlocks []llm.ContentBlock
+	contentBlocks := make([]llm.ContentBlock, 0, 1+len(toolCallBlocks))
 	if textBuilder.Len() > 0 {
 		contentBlocks = append(contentBlocks, &llm.TextBlock{Text: textBuilder.String()})
 	}

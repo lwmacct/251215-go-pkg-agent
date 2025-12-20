@@ -17,17 +17,17 @@ type Status struct {
 	State        State          `json:"state"`
 	StepCount    int            `json:"step_count"`
 	MessageCount int            `json:"message_count"`
-	LastActivity time.Time      `json:"last_activity,omitempty"`
+	LastActivity time.Time      `json:"last_activity,omitzero"`
 	Metadata     map[string]any `json:"metadata,omitempty"`
 }
 
 // Result 对话完成结果
 type Result struct {
-	Text        string        `json:"text"`                   // 完整响应文本
-	Messages    []llm.Message `json:"messages,omitempty"`     // 本轮对话的所有消息
-	ToolsUsed   []string      `json:"tools_used,omitempty"`   // 使用过的工具列表
-	StepCount   int           `json:"step_count"`             // 执行步数（LLM 调用次数）
-	TotalTokens int           `json:"total_tokens,omitempty"` // Token 消耗
+	Text        string         `json:"text"`                   // 完整响应文本
+	Messages    []llm.Message  `json:"messages,omitempty"`     // 本轮对话的所有消息
+	ToolsUsed   []string       `json:"tools_used,omitempty"`   // 使用过的工具列表
+	StepCount   int            `json:"step_count"`             // 执行步数（LLM 调用次数）
+	TotalTokens int            `json:"total_tokens,omitempty"` // Token 消耗
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 

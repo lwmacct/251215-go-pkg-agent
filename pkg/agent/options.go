@@ -388,12 +388,12 @@ func WithRetryConfig(cfg *RetryConfig) Option {
 //
 //	// 禁用重试
 //	ag, err := agent.NewAgent(agent.WithMaxRetries(0))
-func WithMaxRetries(max int) Option {
+func WithMaxRetries(maxRetries int) Option {
 	return func(b *builder) {
 		if b.retryConfig == nil {
 			b.retryConfig = DefaultRetryConfig()
 		}
-		b.retryConfig.MaxRetries = max
+		b.retryConfig.MaxRetries = maxRetries
 	}
 }
 

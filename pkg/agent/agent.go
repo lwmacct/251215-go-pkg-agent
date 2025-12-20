@@ -27,7 +27,7 @@ var (
 // Agent 基础实现
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Agent Agent 基础实现
+// Agent
 // 可以直接使用，也可以嵌入到自定义 Agent 中
 //
 // 核心方法:
@@ -338,6 +338,9 @@ func (a *Agent) Chat(ctx context.Context, text string) (*Result, error) {
 			result = event.Result
 		case llm.EventTypeError:
 			lastError = event.Error
+		case llm.EventTypeText, llm.EventTypeToolCall, llm.EventTypeToolResult,
+			llm.EventTypeReasoning, llm.EventTypeThinking:
+			// 忽略流式事件，仅关注最终结果
 		}
 	}
 

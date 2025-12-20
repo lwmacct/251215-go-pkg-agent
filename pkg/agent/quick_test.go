@@ -16,12 +16,8 @@ func TestQuick(t *testing.T) {
 		t.Skip("Requires real API key and provider")
 
 		// 设置测试环境变量
-		_ = os.Setenv("OPENAI_API_KEY", "sk-test-key")
-		_ = os.Setenv("LLM_MODEL", "gpt-4o-mini")
-		defer func() {
-			_ = os.Unsetenv("OPENAI_API_KEY")
-			_ = os.Unsetenv("LLM_MODEL")
-		}()
+		t.Setenv("OPENAI_API_KEY", "sk-test-key")
+		t.Setenv("LLM_MODEL", "gpt-4o-mini")
 
 		ctx := context.Background()
 
@@ -118,8 +114,7 @@ func TestDetectModel(t *testing.T) {
 
 			// 设置测试环境变量
 			if tt.envKey != "" {
-				_ = os.Setenv(tt.envKey, tt.envValue)
-				defer func() { _ = os.Unsetenv(tt.envKey) }()
+				t.Setenv(tt.envKey, tt.envValue)
 			}
 
 			got := detectModel()
@@ -131,14 +126,9 @@ func TestDetectModel(t *testing.T) {
 
 	t.Run("should_prioritize_LLM_MODEL", func(t *testing.T) {
 		// 设置多个环境变量，验证优先级
-		_ = os.Setenv("LLM_MODEL", "priority-1")
-		_ = os.Setenv("OPENAI_MODEL", "priority-2")
-		_ = os.Setenv("MODEL", "priority-3")
-		defer func() {
-			_ = os.Unsetenv("LLM_MODEL")
-			_ = os.Unsetenv("OPENAI_MODEL")
-			_ = os.Unsetenv("MODEL")
-		}()
+		t.Setenv("LLM_MODEL", "priority-1")
+		t.Setenv("OPENAI_MODEL", "priority-2")
+		t.Setenv("MODEL", "priority-3")
 
 		got := detectModel()
 		if got != "priority-1" {
@@ -208,8 +198,7 @@ func TestDetectAPIKey(t *testing.T) {
 
 			// 设置测试环境变量
 			if tt.envKey != "" {
-				_ = os.Setenv(tt.envKey, tt.envValue)
-				defer func() { _ = os.Unsetenv(tt.envKey) }()
+				t.Setenv(tt.envKey, tt.envValue)
 			}
 
 			got := detectAPIKey()
@@ -221,14 +210,9 @@ func TestDetectAPIKey(t *testing.T) {
 
 	t.Run("should_prioritize_OPENAI_API_KEY", func(t *testing.T) {
 		// 设置多个环境变量，验证优先级
-		_ = os.Setenv("OPENAI_API_KEY", "sk-priority-1")
-		_ = os.Setenv("ANTHROPIC_API_KEY", "sk-priority-2")
-		_ = os.Setenv("API_KEY", "sk-priority-3")
-		defer func() {
-			_ = os.Unsetenv("OPENAI_API_KEY")
-			_ = os.Unsetenv("ANTHROPIC_API_KEY")
-			_ = os.Unsetenv("API_KEY")
-		}()
+		t.Setenv("OPENAI_API_KEY", "sk-priority-1")
+		t.Setenv("ANTHROPIC_API_KEY", "sk-priority-2")
+		t.Setenv("API_KEY", "sk-priority-3")
 
 		got := detectAPIKey()
 		if got != "sk-priority-1" {
@@ -309,24 +293,5 @@ func TestQuickOptions(t *testing.T) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 示例测试
+// 示例测试（需要真实 API key，已移至 manual_test.go）
 // ═══════════════════════════════════════════════════════════════════════════
-
-// Example_quick 演示 Quick API 的基本用法
-func Example_quick() {
-	// 跳过（需要真实 API key）
-	// result, _ := Quick(context.Background(), "Hello")
-	// fmt.Println(result.Text)
-}
-
-// Example_quickWithOptions 演示带选项的 Quick API
-func Example_quickWithOptions() {
-	// 跳过（需要真实 API key）
-	// result, _ := Quick(
-	//     context.Background(),
-	//     "Translate to French: Hello",
-	//     WithQuickModel("gpt-4"),
-	//     WithQuickSystem("You are a translator"),
-	// )
-	// fmt.Println(result.Text)
-}

@@ -3,7 +3,7 @@ package agent
 import (
 	"errors"
 
-	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
+	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm"
 	"github.com/urfave/cli/v3"
 )
@@ -66,24 +66,24 @@ const DefaultEnvBindKey = "envbind"
 //
 //	// 从指定配置文件加载
 //	cfg, err := agent.LoadConfig(
-//	    mcfg.WithConfigPaths("custom.yaml"),
+//	    cfgm.WithConfigPaths("custom.yaml"),
 //	)
 //
 //	// 环境变量自动绑定
 //	cfg, err := agent.LoadConfig(
-//	    mcfg.WithEnvPrefix("AGENT_"),
+//	    cfgm.WithEnvPrefix("AGENT_"),
 //	)
 //
 //	// 完整配置
 //	cfg, err := agent.LoadConfig(
-//	    mcfg.WithEnvPrefix("AGENT_"),
-//	    mcfg.WithEnvBindings(map[string]string{
+//	    cfgm.WithEnvPrefix("AGENT_"),
+//	    cfgm.WithEnvBindings(map[string]string{
 //	        "OPENROUTER_API_KEY": "llm.api-key",
 //	    }),
 //	)
-func LoadConfig(opts ...mcfg.Option) (*Config, error) {
-	return mcfg.Load(*DefaultConfig(), append([]mcfg.Option{
-		mcfg.WithAppName(AppName),
+func LoadConfig(opts ...cfgm.Option) (*Config, error) {
+	return cfgm.Load(*DefaultConfig(), append([]cfgm.Option{
+		cfgm.WithAppName(AppName),
 	}, opts...)...)
 }
 
@@ -94,11 +94,11 @@ func LoadConfig(opts ...mcfg.Option) (*Config, error) {
 // 示例:
 //
 //	cfg := agent.MustLoadConfig(
-//	    mcfg.WithEnvPrefix("AGENT_"),
+//	    cfgm.WithEnvPrefix("AGENT_"),
 //	)
-func MustLoadConfig(opts ...mcfg.Option) *Config {
-	return mcfg.MustLoad(*DefaultConfig(), append([]mcfg.Option{
-		mcfg.WithAppName(AppName),
+func MustLoadConfig(opts ...cfgm.Option) *Config {
+	return cfgm.MustLoad(*DefaultConfig(), append([]cfgm.Option{
+		cfgm.WithAppName(AppName),
 	}, opts...)...)
 }
 
@@ -116,18 +116,18 @@ func MustLoadConfig(opts ...mcfg.Option) *Config {
 //	    },
 //	    Action: func(ctx context.Context, cmd *cli.Command) error {
 //	        cfg, err := agent.LoadConfigCmd(cmd,
-//	            mcfg.WithEnvPrefix("AGENT_"),
+//	            cfgm.WithEnvPrefix("AGENT_"),
 //	        )
 //	        // ...
 //	    },
 //	}
-func LoadConfigCmd(cmd *cli.Command, opts ...mcfg.Option) (*Config, error) {
-	return mcfg.LoadCmd(cmd, *DefaultConfig(), AppName, opts...)
+func LoadConfigCmd(cmd *cli.Command, opts ...cfgm.Option) (*Config, error) {
+	return cfgm.LoadCmd(cmd, *DefaultConfig(), AppName, opts...)
 }
 
 // MustLoadConfigCmd 是 LoadConfigCmd 的 panic 版本
-func MustLoadConfigCmd(cmd *cli.Command, opts ...mcfg.Option) *Config {
-	return mcfg.MustLoadCmd(cmd, *DefaultConfig(), AppName, opts...)
+func MustLoadConfigCmd(cmd *cli.Command, opts ...cfgm.Option) *Config {
+	return cfgm.MustLoadCmd(cmd, *DefaultConfig(), AppName, opts...)
 }
 
 // LoadConfigWithEnvBind 支持从配置文件读取环境变量映射
@@ -141,9 +141,9 @@ func MustLoadConfigCmd(cmd *cli.Command, opts ...mcfg.Option) *Config {
 //	name: my-agent
 //	llm:
 //	  model: gpt-4
-func LoadConfigWithEnvBind(opts ...mcfg.Option) (*Config, error) {
-	return LoadConfig(append([]mcfg.Option{
-		mcfg.WithEnvBindKey(DefaultEnvBindKey),
+func LoadConfigWithEnvBind(opts ...cfgm.Option) (*Config, error) {
+	return LoadConfig(append([]cfgm.Option{
+		cfgm.WithEnvBindKey(DefaultEnvBindKey),
 	}, opts...)...)
 }
 
@@ -158,7 +158,7 @@ func LoadConfigWithEnvBind(opts ...mcfg.Option) (*Config, error) {
 //  4. config.yaml - 当前目录通用配置
 //  5. config/config.yaml - 子目录配置
 func DefaultConfigPaths() []string {
-	return mcfg.DefaultPaths(AppName)
+	return cfgm.DefaultPaths(AppName)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -169,19 +169,19 @@ func DefaultConfigPaths() []string {
 //
 // 使用 koanf tags 和 desc tags 生成格式化的 YAML，适合作为配置模板。
 func ConfigToYAML(cfg *Config) []byte {
-	return mcfg.ExampleYAML(*cfg)
+	return cfgm.ExampleYAML(*cfg)
 }
 
 // MarshalConfigYAML 导出配置为 YAML (无注释)
 //
 // 使用 koanf 原生 Marshal，输出简洁。
 func MarshalConfigYAML(cfg *Config) []byte {
-	return mcfg.MarshalYAML(*cfg)
+	return cfgm.MarshalYAML(*cfg)
 }
 
 // MarshalConfigJSON 导出配置为 JSON
 func MarshalConfigJSON(cfg *Config) []byte {
-	return mcfg.MarshalJSON(*cfg)
+	return cfgm.MarshalJSON(*cfg)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

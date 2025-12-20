@@ -9,7 +9,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
+	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm"
 	"github.com/lwmacct/251215-go-pkg-mcp/pkg/mcp"
 	"github.com/lwmacct/251215-go-pkg-tool/pkg/tool"
@@ -125,9 +125,11 @@ func (b *Builder) APIKeyFromEnv(envNames ...string) *Builder {
 	}
 
 	// 合并用户指定和默认
-	envs := append(envNames, defaultEnvs...)
+	allEnvs := make([]string, 0, len(envNames)+len(defaultEnvs))
+	allEnvs = append(allEnvs, envNames...)
+	allEnvs = append(allEnvs, defaultEnvs...)
 
-	for _, name := range envs {
+	for _, name := range allEnvs {
 		if key := os.Getenv(name); key != "" {
 			b.inner.config.LLM.APIKey = key
 			return b
@@ -166,7 +168,7 @@ func (b *Builder) System(prompt string) *Builder {
 
 // SystemFromFile 从文件读取系统提示词
 func (b *Builder) SystemFromFile(path string) *Builder {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) //nolint:gosec // G304: 用户提供的配置文件路径
 	if err != nil {
 		b.errs = append(b.errs, fmt.Errorf("read system prompt file: %w", err))
 		return b
@@ -273,11 +275,11 @@ func (b *Builder) RetryConfig(cfg *RetryConfig) *Builder {
 }
 
 // MaxRetries 设置最大重试次数（便捷方法）
-func (b *Builder) MaxRetries(max int) *Builder {
+func (b *Builder) MaxRetries(maxRetries int) *Builder {
 	if b.inner.retryConfig == nil {
 		b.inner.retryConfig = DefaultRetryConfig()
 	}
-	b.inner.retryConfig.MaxRetries = max
+	b.inner.retryConfig.MaxRetries = maxRetries
 	return b
 }
 
@@ -308,8 +310,8 @@ func (b *Builder) FromConfig(cfg *Config) *Builder {
 //   - ... (所有嵌套字段自动支持)
 func (b *Builder) FromEnv(prefix string) *Builder {
 	cfg, err := LoadConfig(
-		mcfg.WithEnvPrefix(prefix+"_"),
-		mcfg.WithBaseDir(""),
+		cfgm.WithEnvPrefix(prefix+"_"),
+		cfgm.WithBaseDir(""),
 	)
 	if err != nil {
 		b.errs = append(b.errs, fmt.Errorf("load from env: %w", err))
@@ -333,8 +335,8 @@ func (b *Builder) FromEnv(prefix string) *Builder {
 //	ag, err := agent.New().FromFile("config.yaml").Build()
 func (b *Builder) FromFile(path string) *Builder {
 	cfg, err := LoadConfig(
-		mcfg.WithConfigPaths(path),
-		mcfg.WithBaseDir(""), // 使用当前工作目录作为基准
+		cfgm.WithConfigPaths(path),
+		cfgm.WithBaseDir(""), // 使用当前工作目录作为基准
 	)
 	if err != nil {
 		b.errs = append(b.errs, fmt.Errorf("load config file: %w", err))

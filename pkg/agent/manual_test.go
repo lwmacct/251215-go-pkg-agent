@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
+	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/lwmacct/251215-go-pkg-agent/pkg/agent"
 )
 
@@ -18,10 +18,10 @@ func Test(t *testing.T) {
 		t.Skip()
 	}
 
-	cfg := mcfg.MustLoad(agent.DefaultConfig())
+	cfg := cfgm.MustLoad(agent.DefaultConfig())
 
 	// 打印完整配置
-	t.Logf("Loaded config:\n%s", mcfg.MarshalYAML(cfg))
+	t.Logf("Loaded config:\n%s", cfgm.MarshalYAML(cfg))
 
 	t.Log("测试完成")
 }

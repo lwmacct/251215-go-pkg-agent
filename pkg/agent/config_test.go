@@ -1,10 +1,9 @@
 package agent
 
 import (
-	"os"
 	"testing"
 
-	"github.com/lwmacct/251207-go-pkg-mcfg/pkg/mcfg"
+	"github.com/lwmacct/251207-go-pkg-cfgm/pkg/cfgm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -54,7 +53,7 @@ func TestValidateConfig(t *testing.T) {
 		}
 
 		err := ValidateConfig(cfg)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "max-tokens must be non-negative")
 	})
 
@@ -80,15 +79,11 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("with_env_prefix", func(t *testing.T) {
-		_ = os.Setenv("TEST_AGENT_MAX_TOKENS", "8192")
-		_ = os.Setenv("TEST_AGENT_SYSTEM_PROMPT", "Custom prompt")
-		defer func() {
-			_ = os.Unsetenv("TEST_AGENT_MAX_TOKENS")
-			_ = os.Unsetenv("TEST_AGENT_SYSTEM_PROMPT")
-		}()
+		t.Setenv("TEST_AGENT_MAX_TOKENS", "8192")
+		t.Setenv("TEST_AGENT_SYSTEM_PROMPT", "Custom prompt")
 
 		cfg, err := LoadConfig(
-			mcfg.WithEnvPrefix("TEST_AGENT_"),
+			cfgm.WithEnvPrefix("TEST_AGENT_"),
 		)
 		require.NoError(t, err)
 
@@ -97,11 +92,10 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("with_env_bindings", func(t *testing.T) {
-		_ = os.Setenv("CUSTOM_ENV_KEY", "custom-api-key")
-		defer func() { _ = os.Unsetenv("CUSTOM_ENV_KEY") }()
+		t.Setenv("CUSTOM_ENV_KEY", "custom-api-key")
 
 		cfg, err := LoadConfig(
-			mcfg.WithEnvBindings(map[string]string{
+			cfgm.WithEnvBindings(map[string]string{
 				"CUSTOM_ENV_KEY": "llm.api-key",
 			}),
 		)
@@ -112,8 +106,8 @@ func TestLoadConfig(t *testing.T) {
 
 	t.Run("with_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("testdata/agent.yaml"),
-			mcfg.WithBaseDir(""),
+			cfgm.WithConfigPaths("testdata/agent.yaml"),
+			cfgm.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -147,16 +141,12 @@ func TestConfigToYAML(t *testing.T) {
 func TestLoadConfig_TemplateSupport(t *testing.T) {
 	t.Run("yaml_with_template_syntax", func(t *testing.T) {
 		// 设置测试环境变量
-		_ = os.Setenv("TEST_LLM_MODEL", "gpt-4-turbo")
-		_ = os.Setenv("TEST_API_KEY", "test-key-12345")
-		defer func() {
-			_ = os.Unsetenv("TEST_LLM_MODEL")
-			_ = os.Unsetenv("TEST_API_KEY")
-		}()
+		t.Setenv("TEST_LLM_MODEL", "gpt-4-turbo")
+		t.Setenv("TEST_API_KEY", "test-key-12345")
 
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("testdata/agent-template.yaml"),
-			mcfg.WithBaseDir(""),
+			cfgm.WithConfigPaths("testdata/agent-template.yaml"),
+			cfgm.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -166,14 +156,12 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 	})
 
 	t.Run("yaml_template_with_default_value", func(t *testing.T) {
-		// 不设置 TEST_LLM_MODEL，使用 default 值
-		_ = os.Unsetenv("TEST_LLM_MODEL")
-		_ = os.Setenv("TEST_API_KEY", "fallback-key")
-		defer func() { _ = os.Unsetenv("TEST_API_KEY") }()
+		// 只设置 TEST_API_KEY，TEST_LLM_MODEL 使用 default 值
+		t.Setenv("TEST_API_KEY", "fallback-key")
 
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("testdata/agent-template.yaml"),
-			mcfg.WithBaseDir(""),
+			cfgm.WithConfigPaths("testdata/agent-template.yaml"),
+			cfgm.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 
@@ -186,8 +174,8 @@ func TestLoadConfig_TemplateSupport(t *testing.T) {
 func TestLoadConfig_JSONSupport(t *testing.T) {
 	t.Run("json_config_file", func(t *testing.T) {
 		cfg, err := LoadConfig(
-			mcfg.WithConfigPaths("testdata/agent.json"),
-			mcfg.WithBaseDir(""),
+			cfgm.WithConfigPaths("testdata/agent.json"),
+			cfgm.WithBaseDir(""),
 		)
 		require.NoError(t, err)
 

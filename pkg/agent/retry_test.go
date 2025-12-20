@@ -19,7 +19,7 @@ func TestDefaultRetryConfig(t *testing.T) {
 	assert.Equal(t, 2, cfg.MaxRetries)
 	assert.Equal(t, 500*time.Millisecond, cfg.InitialBackoff)
 	assert.Equal(t, 5*time.Second, cfg.MaxBackoff)
-	assert.Equal(t, 2.0, cfg.Multiplier)
+	assert.InDelta(t, 2.0, cfg.Multiplier, 0.001)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -135,7 +135,7 @@ func TestRetryConfig(t *testing.T) {
 		assert.Equal(t, 5, cfg.MaxRetries)
 		assert.Equal(t, time.Second, cfg.InitialBackoff)
 		assert.Equal(t, 30*time.Second, cfg.MaxBackoff)
-		assert.Equal(t, 1.5, cfg.Multiplier)
+		assert.InDelta(t, 1.5, cfg.Multiplier, 0.001)
 	})
 
 	t.Run("zero_retries", func(t *testing.T) {
@@ -154,8 +154,7 @@ func TestRetryConfig(t *testing.T) {
 func BenchmarkIsRetriable(b *testing.B) {
 	err := errors.New("connection timeout")
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = IsRetriable(err)
 	}
 }
@@ -163,8 +162,7 @@ func BenchmarkIsRetriable(b *testing.B) {
 func BenchmarkIsRetriable_NoMatch(b *testing.B) {
 	err := errors.New("invalid API key")
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = IsRetriable(err)
 	}
 }

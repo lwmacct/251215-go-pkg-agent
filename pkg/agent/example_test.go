@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/lwmacct/251215-go-pkg-agent/pkg/agent"
-	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm/provider/localmock"
+	"github.com/lwmacct/251215-go-pkg-llm/pkg/llm/provider/mock"
 	"github.com/lwmacct/251215-go-pkg-tool/pkg/tool"
 )
 
@@ -31,7 +31,7 @@ type CalcInput struct {
 // Fluent Builder 是推荐的 API，提供链式配置和良好的 IDE 自动补全。
 func Example_basic() {
 	// 创建 mock provider（实际使用时会自动从环境变量探测）
-	provider := localmock.New(localmock.WithResponse("Hello! I'm your assistant."))
+	provider := mock.New(mock.WithResponse("Hello! I'm your assistant."))
 	defer func() { _ = provider.Close() }()
 
 	// L1: Fluent Builder API
@@ -54,7 +54,7 @@ func Example_basic() {
 //
 // Functional Options 提供完全控制，适合需要动态配置的场景。
 func Example_newAgent() {
-	provider := localmock.New(localmock.WithResponse("Hello!"))
+	provider := mock.New(mock.WithResponse("Hello!"))
 	defer func() { _ = provider.Close() }()
 
 	// L2: Functional Options API
@@ -75,7 +75,7 @@ func Example_newAgent() {
 
 // Example_builderChat 展示使用 Builder 直接对话
 func Example_builderChat() {
-	provider := localmock.New(localmock.WithResponse("2"))
+	provider := mock.New(mock.WithResponse("2"))
 	defer func() { _ = provider.Close() }()
 
 	// Builder 可以直接调用 Chat，无需显式 Build
@@ -95,7 +95,7 @@ func Example_builderChat() {
 
 // Example_builderFromFile 展示从配置文件加载
 func Example_builderFromFile() {
-	provider := localmock.New(localmock.WithResponse("Configured!"))
+	provider := mock.New(mock.WithResponse("Configured!"))
 	defer func() { _ = provider.Close() }()
 
 	// 从 YAML 配置文件加载（支持 JSON/YAML 格式，支持模板语法）
@@ -135,7 +135,7 @@ func Example_builderToYAML() {
 
 // Example_builderTools 展示添加工具
 func Example_builderTools() {
-	provider := localmock.New(localmock.WithResponse("Tool added"))
+	provider := mock.New(mock.WithResponse("Tool added"))
 	defer func() { _ = provider.Close() }()
 
 	// 使用 tool.Func 快捷定义工具
@@ -174,7 +174,7 @@ func Example_builderTools() {
 
 // Example_from 展示从现有 Agent 创建变体
 func Example_from() {
-	provider := localmock.New(localmock.WithResponse("Variant"))
+	provider := mock.New(mock.WithResponse("Variant"))
 	defer func() { _ = provider.Close() }()
 
 	// 创建基础 Agent
@@ -201,7 +201,7 @@ func Example_from() {
 
 // Example_cloneAgent 展示克隆 Agent
 func Example_cloneAgent() {
-	provider := localmock.New(localmock.WithResponse("Cloned"))
+	provider := mock.New(mock.WithResponse("Cloned"))
 	defer func() { _ = provider.Close() }()
 
 	// 创建原始 Agent
@@ -229,7 +229,7 @@ func Example_cloneAgent() {
 // Example_streaming 展示流式执行
 func Example_streaming() {
 	// 使用 WithResponses 模拟流式响应
-	provider := localmock.New(localmock.WithResponse("Stream response"))
+	provider := mock.New(mock.WithResponse("Stream response"))
 	defer func() { _ = provider.Close() }()
 
 	ag, _ := agent.New().
@@ -253,7 +253,7 @@ func Example_streaming() {
 
 // Example_multiTurn 展示多轮对话
 func Example_multiTurn() {
-	provider := localmock.New(localmock.WithResponses(
+	provider := mock.New(mock.WithResponses(
 		"Hi there!",
 		"I'm doing great, thanks!",
 	))

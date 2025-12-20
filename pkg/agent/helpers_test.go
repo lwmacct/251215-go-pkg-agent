@@ -70,7 +70,7 @@ func TestGenerateAgentID(t *testing.T) {
 
 	t.Run("has_correct_prefix", func(t *testing.T) {
 		id := generateAgentID()
-		assert.True(t, len(id) > 4, "ID should be longer than prefix")
+		assert.Greater(t, len(id), 4, "ID should be longer than prefix")
 		assert.Equal(t, "agt-", id[:4], "ID should start with 'agt-'")
 	})
 }

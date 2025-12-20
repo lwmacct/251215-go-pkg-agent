@@ -92,7 +92,7 @@ func (a *Agent) executeToolsWithEvents(ctx context.Context, toolCalls []*llm.Too
 			}
 
 			// 将 AgentID 存入 context
-			ctx := tool.ContextWithAgentID(ctx, a.id)
+			toolCtx := tool.ContextWithAgentID(ctx, a.id)
 
 			// 执行工具（优先使用 ExecuteResult）
 			a.logger.Debug("executing tool", "tool", tc.Name)
@@ -106,7 +106,7 @@ func (a *Agent) executeToolsWithEvents(ctx context.Context, toolCalls []*llm.Too
 			operation := func() (any, error) {
 				// 检查是否实现了 ResultExecutor 接口
 				if re, ok := t.(tool.ResultExecutor); ok {
-					result := re.ExecuteResult(ctx, inputJSON)
+					result := re.ExecuteResult(toolCtx, inputJSON)
 					if result.IsErr() {
 						return nil, result.Error()
 					}
@@ -114,13 +114,13 @@ func (a *Agent) executeToolsWithEvents(ctx context.Context, toolCalls []*llm.Too
 					return result.Value(), nil
 				} else {
 					// 兼容旧工具
-					return t.Execute(ctx, inputJSON)
+					return t.Execute(toolCtx, inputJSON)
 				}
 			}
 
 			// 使用重试机制执行工具
 			if a.retryConfig != nil && a.retryConfig.MaxRetries > 0 {
-				output, retries, execErr = a.retryWithBackoff(ctx, operation, a.retryConfig)
+				output, retries, execErr = a.retryWithBackoff(toolCtx, operation, a.retryConfig)
 			} else {
 				// 不重试，直接执行
 				output, execErr = operation()
@@ -138,8 +138,13 @@ func (a *Agent) executeToolsWithEvents(ctx context.Context, toolCalls []*llm.Too
 				content = fmt.Sprintf("Error: %v", execErr)
 				isError = true
 			} else {
-				jsonBytes, _ := json.Marshal(output)
-				content = string(jsonBytes)
+				jsonBytes, marshalErr := json.Marshal(output)
+				if marshalErr != nil {
+					a.logger.Error("failed to marshal output", "tool", tc.Name, "error", marshalErr)
+					content = fmt.Sprintf("%v", output)
+				} else {
+					content = string(jsonBytes)
+				}
 			}
 
 			// 记录元数据（如果有）

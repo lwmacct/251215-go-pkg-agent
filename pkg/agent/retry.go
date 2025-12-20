@@ -17,7 +17,7 @@ type RetryConfig struct {
 // DefaultRetryConfig 默认重试配置
 func DefaultRetryConfig() *RetryConfig {
 	return &RetryConfig{
-		MaxRetries:     2,                      // 最多重试 2 次（总共执行 3 次）
+		MaxRetries:     2, // 最多重试 2 次（总共执行 3 次）
 		InitialBackoff: 500 * time.Millisecond,
 		MaxBackoff:     5 * time.Second,
 		Multiplier:     2.0,
@@ -88,10 +88,7 @@ func (a *Agent) retryWithBackoff(
 		case <-ctx.Done():
 			return nil, attempt, ctx.Err()
 		case <-time.After(backoff):
-			backoff = time.Duration(float64(backoff) * cfg.Multiplier)
-			if backoff > cfg.MaxBackoff {
-				backoff = cfg.MaxBackoff
-			}
+			backoff = min(time.Duration(float64(backoff)*cfg.Multiplier), cfg.MaxBackoff)
 		}
 	}
 
